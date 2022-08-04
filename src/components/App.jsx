@@ -1,46 +1,52 @@
-import { useEffect, useRef } from 'react';
-import { useState } from 'react';
+// import { useEffect, useRef } from 'react';
+// import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux/es/exports';
+import * as contactsActions from '../redux/contactsActions';
 
 import { ContactForm } from './ContactForm/ContactForm';
 import { ContactList } from './ContactList/ContactList';
 import { Filter } from './Filter/Filter';
 
-const CONTACTS_KEY = 'kontacts-key';
+// const CONTACTS_KEY = 'kontacts-key';
 export const App = () => {
-  const isFirstRender = useRef(true);
-  const [contacts, setContacts] = useState([]);
-  const [filter, setFilter] = useState('');
+  const dispatch = useDispatch();
+  const contacts = useSelector(state => state.contacts.items);
+  const filter = useSelector(state => state.contacts.filter);
 
-  useEffect(() => {
-    const localData = JSON.parse(localStorage.getItem(CONTACTS_KEY));
-    if (localData) {
-      setContacts(localData);
-    }
-  }, []);
+  // const isFirstRender = useRef(true);
+  // const [contacts, setContacts] = useState([]);
+  // const [filter, setFilter] = useState('');
 
-  useEffect(() => {
-    if (!isFirstRender.current) {
-      localStorage.setItem(CONTACTS_KEY, JSON.stringify(contacts));
-    } else {
-      isFirstRender.current = false;
-    }
-  }, [contacts]);
+  // useEffect(() => {
+  //   const localData = JSON.parse(localStorage.getItem(CONTACTS_KEY));
+  //   if (localData) {
+  //     setContacts(localData);
+  //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   if (!isFirstRender.current) {
+  //     localStorage.setItem(CONTACTS_KEY, JSON.stringify(contacts));
+  //   } else {
+  //     isFirstRender.current = false;
+  //   }
+  // }, [contacts]);
 
   const handleSubmit = dataForm => {
     contacts.find(
       ({ name }) => name.toLowerCase() === dataForm.name.toLowerCase()
     )
       ? alert(`${dataForm.name} is already in contacts.`)
-      : setContacts([...contacts, dataForm]);
+      : dispatch(contactsActions.addContact(dataForm));
   };
 
   const handleOnInputFilter = evt => {
     const { value } = evt.target;
-    setFilter(value);
+    dispatch(contactsActions.findContact(value));
   };
 
   const onDelete = id => {
-    setContacts(ps => ps.filter(item => item.id !== id));
+    dispatch(contactsActions.deleteContact(id));
   };
 
   const normFilter = filter.toLowerCase();
